@@ -47,10 +47,13 @@ public class RestoreFeedbackSessionActionTest extends BaseActionTest<RestoreFeed
 
         RestoreFeedbackSessionAction restoreFeedbackSessionAction = getAction(params);
         JsonResult result = getJsonResult(restoreFeedbackSessionAction);
-        FeedbackSessionData feedbackSessionData = (FeedbackSessionData) result.getOutput();
 
+        FeedbackSessionAttributes fsa = logic.getFeedbackSession(fs.getFeedbackSessionName(), course.getId());
+
+        assertNull(fsa.getDeletedTime());
+
+        FeedbackSessionData feedbackSessionData = (FeedbackSessionData) result.getOutput();
         assertEquals(feedbackSessionData.getFeedbackSessionName(), fs.getFeedbackSessionName());
-        assertNull(feedbackSessionData.getDeletedAtTimestamp());
     }
 
     @Test
