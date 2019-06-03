@@ -19,6 +19,7 @@ import { SortBy, SortOrder, StudentListSectionData, StudentListStudentData } fro
   styleUrls: ['./student-list.component.scss'],
 })
 export class StudentListComponent implements OnInit {
+  private _sections: StudentListSectionData[] = [];
   @Input() courseId: string = '';
   @Input() useGrayHeading: boolean = true;
   @Input() listOfStudentsToHide: string[] = [];
@@ -45,9 +46,17 @@ export class StudentListComponent implements OnInit {
 
   @Input()
   set sections(sections: StudentListSectionData[]) {
-    this.students = this.mapStudentsFromSectionData(sections);
+    this._sections = sections;
   }
 
+  get sections() {
+    return this._sections;
+  }
+
+  ngDoCheck() {
+    console.log("this");
+    this.students = this.mapStudentsFromSectionData(this.sections);
+  }
   /**
    * Flatten section data.
    */
