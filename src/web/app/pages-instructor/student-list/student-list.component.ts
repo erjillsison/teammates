@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, IterableDiffer, IterableDiffers, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../environments/environment';
@@ -20,6 +20,7 @@ import { SortBy, SortOrder, StudentListSectionData, StudentListStudentData } fro
 })
 export class StudentListComponent implements OnInit {
   private _sections: StudentListSectionData[] = [];
+  private differ: IterableDiffer<StudentListSectionData>;
   @Input() courseId: string = '';
   @Input() useGrayHeading: boolean = true;
   @Input() listOfStudentsToHide: string[] = [];
@@ -39,7 +40,10 @@ export class StudentListComponent implements OnInit {
               private statusMessageService: StatusMessageService,
               private navigationService: NavigationService,
               private courseService: CourseService,
-              private ngbModal: NgbModal) { }
+              private ngbModal: NgbModal,
+              private differs: IterableDiffers) {
+    this.differ = this.differs.find(this.sections).create();
+  }
 
   ngOnInit(): void {
   }
@@ -54,8 +58,11 @@ export class StudentListComponent implements OnInit {
   }
 
   ngDoCheck() {
-    console.log("this");
-    this.students = this.mapStudentsFromSectionData(this.sections);
+    const changes = this.differ.diff(this.sections);
+    if (changes) {
+      console.log("this");
+      this.students = this.mapStudentsFromSectionData(this.sections);
+    }
   }
   /**
    * Flatten section data.
