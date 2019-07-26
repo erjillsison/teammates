@@ -888,4 +888,17 @@ export class InstructorSessionEditPageComponent extends InstructorSessionBasePag
   private deepCopy<T>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
   }
+
+  /**
+   * Scrolls to the section passed in
+   */
+  scroll(id: string): void {
+    const el: any = document.getElementById(id);
+    console.log(el.offsetTop);
+    if (el) {
+      el.scrollIntoView();
+      window.scrollBy(0, -50);
+    }
+    console.log(window.scrollY);
+  }
 }
