@@ -3,10 +3,12 @@ package teammates.common.datatransfer.questions;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import teammates.common.datatransfer.FeedbackParticipantType;
 import teammates.common.datatransfer.FeedbackSessionResultsBundle;
@@ -571,6 +573,12 @@ public class FeedbackMcqQuestionDetails extends FeedbackQuestionDetails {
                 errors.add(Const.FeedbackQuestion.MCQ_ERROR_EMPTY_MCQ_OPTION);
             }
 
+            // If there are duplicate Mcq options entered, trigger this error
+            Set<String> mcqSet = new HashSet<>(mcqChoices);
+            if (mcqSet.size() < mcqChoices.size()) {
+                errors.add(Const.FeedbackQuestion.MCQ_ERROR_DUPLICATE_OPTIONS);
+            }
+
             // If weights are enabled, number of choices and weights should be same.
             // If user enters an invalid weight for a valid choice,
             // the mcqChoices.size() will be greater than mcqWeights.size(),
@@ -606,7 +614,6 @@ public class FeedbackMcqQuestionDetails extends FeedbackQuestionDetails {
                 }
             }
         }
-        //TODO: check that mcq options do not repeat. needed?
 
         return errors;
     }
