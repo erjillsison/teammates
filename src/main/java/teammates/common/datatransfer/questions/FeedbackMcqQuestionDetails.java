@@ -62,8 +62,16 @@ public class FeedbackMcqQuestionDetails extends FeedbackQuestionDetails {
         return numOfMcqChoices;
     }
 
+    public void setNumOfMcqChoices(int numOfMcqChoices) {
+        this.numOfMcqChoices = numOfMcqChoices;
+    }
+
     public List<String> getMcqChoices() {
         return mcqChoices;
+    }
+
+    public void setMcqChoices(List<String> mcqChoices) {
+        this.mcqChoices = mcqChoices;
     }
 
     public boolean hasAssignedWeights() {

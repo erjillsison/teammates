@@ -2,6 +2,7 @@ package teammates.test.cases.webapi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.http.HttpStatus;
 import org.testng.annotations.Test;
@@ -11,6 +12,7 @@ import teammates.common.datatransfer.attributes.FeedbackQuestionAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.questions.FeedbackContributionQuestionDetails;
+import teammates.common.datatransfer.questions.FeedbackMcqQuestionDetails;
 import teammates.common.datatransfer.questions.FeedbackQuestionType;
 import teammates.common.datatransfer.questions.FeedbackTextQuestionDetails;
 import teammates.common.exception.InvalidHttpRequestBodyException;
@@ -163,6 +165,31 @@ public class CreateFeedbackQuestionActionTest extends BaseActionTest<CreateFeedb
     }
 
     @Test
+    public void testExecute_mcqWithDuplicateOption_shouldFail() {
+        InstructorAttributes instructor1ofCourse1 = typicalBundle.instructors.get("instructor1OfCourse1");
+        FeedbackSessionAttributes session = typicalBundle.feedbackSessions.get("session1InCourse1");
+
+        loginAsInstructor(instructor1ofCourse1.getGoogleId());
+
+        String[] params = {
+                Const.ParamsNames.COURSE_ID, session.getCourseId(),
+                Const.ParamsNames.FEEDBACK_SESSION_NAME, session.getFeedbackSessionName(),
+        };
+
+        FeedbackQuestionCreateRequest createRequest = getTypicalMcqQuestionCreateRequest();
+
+        FeedbackMcqQuestionDetails mcqQuestionDetails = new FeedbackMcqQuestionDetails();
+        List<String> mcqChoices = new ArrayList<>(Arrays.asList("duplicateOption", "duplicateOption"));
+        mcqQuestionDetails.setMcqChoices(mcqChoices);
+        mcqQuestionDetails.setNumOfMcqChoices(mcqChoices.size());
+        createRequest.setQuestionDetails(mcqQuestionDetails);
+
+        CreateFeedbackQuestionAction a = getAction(createRequest, params);
+        assertThrows(InvalidHttpRequestBodyException.class, () -> a.execute());
+
+    }
+
+    @Test
     public void testExecute_contributionQuestion_shouldCreateQuestionSuccessfully() {
         InstructorAttributes instructor1ofCourse1 = typicalBundle.instructors.get("instructor1OfCourse1");
         FeedbackSessionAttributes session = typicalBundle.feedbackSessions.get("session1InCourse1");
@@ -201,6 +228,28 @@ public class CreateFeedbackQuestionActionTest extends BaseActionTest<CreateFeedb
                         session.getCourseId(), createRequest.getQuestionNumber());
         // verify question is created
         assertEquals(FeedbackQuestionType.CONTRIB, questionAttributes.getQuestionType());
+    }
+
+    private FeedbackQuestionCreateRequest getTypicalMcqQuestionCreateRequest() {
+        FeedbackQuestionCreateRequest createRequest = new FeedbackQuestionCreateRequest();
+        createRequest.setQuestionNumber(1);
+        createRequest.setQuestionBrief("this is the brief");
+        createRequest.setQuestionDescription("this is the description");
+        FeedbackMcqQuestionDetails mcqQuestionDetails = new FeedbackMcqQuestionDetails();
+        List<String> mcqChoices = new ArrayList<>(Arrays.asList("someOption", "anotherOption"));
+        mcqQuestionDetails.setMcqChoices(mcqChoices);
+        mcqQuestionDetails.setNumOfMcqChoices(mcqChoices.size());
+        createRequest.setQuestionDetails(mcqQuestionDetails);
+        createRequest.setQuestionType(FeedbackQuestionType.MCQ);
+        createRequest.setGiverType(FeedbackParticipantType.STUDENTS);
+        createRequest.setRecipientType(FeedbackParticipantType.INSTRUCTORS);
+        createRequest.setNumberOfEntitiesToGiveFeedbackToSetting(NumberOfEntitiesToGiveFeedbackToSetting.UNLIMITED);
+
+        createRequest.setShowResponsesTo(new ArrayList<>());
+        createRequest.setShowGiverNameTo(new ArrayList<>());
+        createRequest.setShowRecipientNameTo(new ArrayList<>());
+
+        return createRequest;
     }
 
     private FeedbackQuestionCreateRequest getTypicalTextQuestionCreateRequest() {
